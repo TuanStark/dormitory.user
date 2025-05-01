@@ -1,5 +1,5 @@
 import Link from 'next/link';
-
+import Image from 'next/image';
 interface DormitoryCardProps {  
     image: string;
     name: string;
@@ -14,7 +14,7 @@ export default function DormitoryCard({ image, name, address, rating, price }: D
             <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
               <div className="relative h-60">
                 <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-                  <span className="text-gray-600">{image}</span>
+                  <Image src={image || '/default_building.jpg'} alt={name} fill />
                 </div>
               </div>
               <div className="p-6">

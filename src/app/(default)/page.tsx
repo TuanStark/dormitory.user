@@ -36,7 +36,7 @@ export default function HomePageMain() {
         {/* Search Section */}
         <SearchSection />
         {/* Featured Dormitories */}
-        <FeaturedDomitory />
+        <FeaturedDomitory/>
         {/* Why Choose Us */}
         <AdsBanner />
         {/* FAQ Section */}

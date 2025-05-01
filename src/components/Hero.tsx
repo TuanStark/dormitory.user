@@ -25,7 +25,7 @@ export default function Hero() {
                 <div className="relative h-full w-full">
                   {/* Placeholder for actual image */}
                   <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-                    <span className="text-gray-600">Hình ảnh ký túc xá</span>
+                    <img src="/home/bg.jpg" alt="Hình ảnh ký túc xá" />
                   </div>
                 </div>
               </div>

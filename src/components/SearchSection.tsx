@@ -10,7 +10,7 @@ export default function SearchSection() {
             <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
               <div className="flex-1">
                 <label className="block text-gray-700 mb-2">Khu vực</label>
-                <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <select className="w-full text-gray-700 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                   <option>Tất cả khu vực</option>
                   <option>Hải Châu</option>
                   <option>Thanh Khê</option>
@@ -21,7 +21,7 @@ export default function SearchSection() {
               </div>
               <div className="flex-1">
                 <label className="block text-gray-700 mb-2">Mức giá</label>
-                <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <select className="w-full text-gray-700 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                   <option>Tất cả mức giá</option>
                   <option>Dưới 1 triệu</option>
                   <option>1 - 1.5 triệu</option>
@@ -31,7 +31,7 @@ export default function SearchSection() {
               </div>
               <div className="flex-1">
                 <label className="block text-gray-700 mb-2">Loại phòng</label>
-                <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <select className="w-full text-gray-700 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                   <option>Tất cả loại phòng</option>
                   <option>Phòng 2 người</option>
                   <option>Phòng 4 người</option>
