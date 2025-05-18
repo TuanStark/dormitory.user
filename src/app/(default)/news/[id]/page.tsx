@@ -254,4 +254,8 @@ export default function NewsDetailPage() {
             Quay lại trang tin tức
           </Link>
         </div>
+      </main>
+    </div>
+  )
+}
  

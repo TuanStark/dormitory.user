@@ -3,9 +3,9 @@ import Link from "next/link";
 export default function FAQ() {
     return (
         <>
-            <section className="py-16">
+            <section className="py-16 bg-gray-600">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-800 mb-12 text-center">Câu hỏi thường gặp</h2>
+          <h2 className="text-3xl font-bold text-white mb-12 text-center">Câu hỏi thường gặp</h2>
           <div className="max-w-3xl mx-auto">
             <div className="mb-6 bg-white rounded-lg shadow-md overflow-hidden">
               <div className="p-6">
@@ -39,7 +39,7 @@ export default function FAQ() {
             </div>
           </div>
           <div className="text-center mt-8">
-            <Link href="/faq" className="inline-block text-blue-600 font-medium hover:underline">
+            <Link href="/faq" className="inline-block text-blue-400 font-medium hover:underline">
               Xem tất cả câu hỏi thường gặp
             </Link>
           </div>

@@ -1,36 +1,115 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dormitory Management System - User Portal
 
-## Getting Started
+![Dormitory Management System](https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80)
 
-First, run the development server:
+## Giới thiệu
 
+Dormitory Management System (DMS) là hệ thống quản lý ký túc xá sinh viên hiện đại, giúp sinh viên dễ dàng tìm kiếm, đặt phòng và thanh toán trực tuyến. Hệ thống được phát triển với giao diện thân thiện, dễ sử dụng và đáp ứng đầy đủ các nhu cầu của người dùng.
+
+## Tính năng chính
+
+- **Tìm kiếm và lọc ký túc xá**: Tìm kiếm theo vị trí, giá cả, tiện ích
+- **Xem chi tiết ký túc xá**: Thông tin chi tiết, hình ảnh, vị trí trên bản đồ
+- **Đặt phòng trực tuyến**: Quy trình đặt phòng 3 bước đơn giản
+- **Thanh toán linh hoạt**: Hỗ trợ thanh toán qua VNPay và chuyển khoản ngân hàng
+- **Quản lý đặt phòng**: Xem lịch sử và trạng thái đặt phòng
+- **Hồ sơ người dùng**: Quản lý thông tin cá nhân
+
+## Công nghệ sử dụng
+
+- **Frontend**: Next.js 15, React, TypeScript, Tailwind CSS
+- **Backend**: NestJS, PostgreSQL
+- **Authentication**: NextAuth.js
+- **Payment Integration**: VNPay
+- **Maps**: OpenStreetMap
+
+## Cài đặt và chạy dự án
+
+### Yêu cầu hệ thống
+
+- Node.js 18.0.0 trở lên
+- npm hoặc yarn
+
+### Các bước cài đặt
+
+1. Clone dự án:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/your-username/dormitory-user.git
+cd dormitory-user
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Cài đặt các dependencies:
+```bash
+npm install
+# hoặc
+yarn install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Tạo file môi trường:
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Cấu hình các biến môi trường trong file `.env.local`:
+```
+NEXT_PUBLIC_NESTJS_API_URL=http://localhost:3000/api
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+NEXTAUTH_URL=http://localhost:3001
+NEXTAUTH_SECRET=your-secret-key
+```
 
-## Learn More
+5. Chạy dự án ở môi trường development:
+```bash
+npm run dev
+# hoặc
+yarn dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+6. Truy cập ứng dụng tại `http://localhost:3001`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Cấu trúc dự án
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+dormitory-user/
+├── public/                  # Static files
+│   ├── payment/             # Payment QR codes and images
+│   └── ...
+├── src/
+│   ├── app/                 # App router pages
+│   │   ├── (auth)/          # Authentication pages
+│   │   ├── (default)/       # Main application pages
+│   │   └── api/             # API routes
+│   ├── components/          # Shared components
+│   ├── lib/                 # Utilities and helpers
+│   │   ├── common/          # Common utilities
+│   │   └── type/            # TypeScript types
+│   └── ...
+├── .env.example             # Example environment variables
+├── .gitignore
+├── next.config.js
+├── package.json
+├── README.md
+└── tsconfig.json
+```
 
-## Deploy on Vercel
+## Quy trình đặt phòng
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Hệ thống đặt phòng được thiết kế theo quy trình 3 bước:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Nhập thông tin người dùng**: Thông tin cá nhân, ngày nhận phòng và thời gian lưu trú
+2. **Chọn phương thức thanh toán**: VNPay hoặc chuyển khoản ngân hàng
+3. **Xác nhận thanh toán**: Hoàn tất quá trình đặt phòng
+
+## Đóng góp
+
+Mọi đóng góp cho dự án đều được hoan nghênh. Vui lòng tạo issue hoặc pull request để cải thiện dự án.
+
+## Giấy phép
+
+Dự án này được phân phối dưới giấy phép MIT. Xem file `LICENSE` để biết thêm chi tiết.
+
+## Liên hệ
+
+Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ:
+- Email: support@dormitory.com
+- Website: https://dormitory.com

@@ -1,18 +1,21 @@
 
 import Link from 'next/link';
-
+import { formatDateTime } from '@/lib/common/datetime';
 export interface PostCardProps {
   date: string;
   title: string;
   description: string;
   link: string;
+  content: string;
+  image: string;
 }
 
-export default function PostCard({ date, title, description, link }: PostCardProps) {
+export default function PostCard( { date, title, description, link, image }: PostCardProps) {
+  console.log(date)
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="h-48 bg-gray-300 flex items-center justify-center">
-      <span className="text-gray-600">Hình ảnh bài viết</span>
+        <img src={image} alt={title} className="w-full h-full object-cover" />
     </div>
     <div className="p-6">
       <div className="flex items-center text-gray-500 text-sm mb-2">
@@ -20,7 +23,7 @@ export default function PostCard({ date, title, description, link }: PostCardPro
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
-        <span>{date}</span>
+        <span>{formatDateTime(date)}</span>
       </div>
       <h3 className="text-xl font-bold text-gray-800 mb-2">{title}</h3>
       <p className="text-gray-600 mb-4">{description}</p>

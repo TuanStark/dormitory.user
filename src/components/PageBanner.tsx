@@ -47,13 +47,13 @@ const PageBanner: React.FC<PageBannerProps> = ({
       {bgImage && (
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-indigo-900/80 z-10"></div>
-          <Image
+          {/* <Image
             src={bgImage}
             alt={title}
             fill
             className="object-cover"
             priority
-          />
+          /> */}
         </div>
       )}
 

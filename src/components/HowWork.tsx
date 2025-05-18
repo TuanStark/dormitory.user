@@ -10,7 +10,7 @@ export default function HowWork() {
             <div className="flex flex-col items-center text-center">
               <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6 relative">
                 <span className="text-xl font-bold">1</span>
-                <div className="absolute w-8 h-0.5 bg-blue-200 -right-8 top-1/2 hidden md:block"></div>
+                {/* <div className="absolute w-8 h-0.5 bg-blue-200 -right-8 top-1/2 hidden md:block"></div> */}
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-4">Tìm kiếm</h3>
               <p className="text-gray-600">Sử dụng bộ lọc thông minh để tìm ký túc xá phù hợp với nhu cầu và ngân sách của bạn.</p>
@@ -18,7 +18,7 @@ export default function HowWork() {
             <div className="flex flex-col items-center text-center">
               <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6 relative">
                 <span className="text-xl font-bold">2</span>
-                <div className="absolute w-8 h-0.5 bg-blue-200 -right-8 top-1/2 hidden md:block"></div>
+                {/* <div className="absolute w-8 h-0.5 bg-blue-200 -right-8 top-1/2 hidden md:block"></div> */}
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-4">So sánh</h3>
               <p className="text-gray-600">Xem thông tin chi tiết, hình ảnh và đánh giá từ sinh viên khác để so sánh các lựa chọn.</p>
@@ -26,7 +26,7 @@ export default function HowWork() {
             <div className="flex flex-col items-center text-center">
               <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6 relative">
                 <span className="text-xl font-bold">3</span>
-                <div className="absolute w-8 h-0.5 bg-blue-200 -right-8 top-1/2 hidden md:block"></div>
+                {/* <div className="absolute w-8 h-0.5 bg-blue-200 -right-8 top-1/2 hidden md:block"></div> */}
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-4">Đặt phòng</h3>
               <p className="text-gray-600">Đặt phòng trực tuyến với quy trình đơn giản, nhanh chóng và bảo mật.</p>

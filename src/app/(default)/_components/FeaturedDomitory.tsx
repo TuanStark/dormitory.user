@@ -1,24 +1,21 @@
 import Link from "next/link";
 import DormitoryCard from "./DormitoryCard";
 import { fetchDormitories } from "@/lib/api";
-
+import { Building } from "@/lib/type";
 // Đánh dấu component là async để hỗ trợ data fetching
 export default async function FeaturedDomitory() {
   // Fetch data trực tiếp trong Server Component
   const dormitories = await fetchDormitories();
+  
   return (
     <>
-        <section className="py-16">
+        <section className="py-16 bg-gray-600">
             <div className="container mx-auto px-4">
-                <h2 className="text-3xl font-bold text-blue-600 mb-8 text-center">Ký túc xá nổi bật</h2>
+                <h2 className="text-3xl font-bold text-white mb-8 text-center">Ký túc xá nổi bật</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {dormitories.data.map((dormitory: any) => (
+                    {dormitories.map((dormitory) => (
                         <DormitoryCard key={dormitory.id}
-                            image={dormitory.image}
-                            name={dormitory.name}
-                            address={dormitory.address}
-                            rating={dormitory.rating}
-                            price={dormitory.price}
+                            dormitory={dormitory as unknown as Building}
                         />
                     ))}
 
