@@ -159,17 +159,27 @@ export default function LoginPage() {
         const errorMessage = result.error.includes('CredentialsSignin')
           ? 'Email hoặc mật khẩu không đúng'
           : 'Đăng nhập thất bại. Vui lòng thử lại.';
-        throw new Error(errorMessage);
+        
+        setFormErrors({
+          ...formErrors,
+          general: errorMessage,
+        });
+        toast.error(errorMessage, { position: 'top-right' });
+        setIsLoading(false);
+        return;
       }
 
+      // Nếu đăng nhập thành công nhưng chưa có session, hiển thị thông báo đang xử lý
       console.log('Client: Sign-in successful, waiting for session');
+      // Không cần reset isLoading ở đây vì session sẽ được cập nhật và useEffect sẽ chuyển hướng
     } catch (error: any) {
       console.error('Client: Sign-in error', { error });
+      const errorMessage = error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.';
       setFormErrors({
         ...formErrors,
-        general: error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.',
+        general: errorMessage,
       });
-      toast.error(error.message || 'Đăng nhập thất bại', { position: 'top-right' });
+      toast.error(errorMessage, { position: 'top-right' });
       setIsLoading(false);
     }
   };

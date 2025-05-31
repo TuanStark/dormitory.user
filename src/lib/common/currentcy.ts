@@ -1,19 +1,22 @@
 /**
- * Định dạng số thành chuỗi tiền tệ
+ * Định dạng số tiền thành định dạng tiền tệ VND
  * @param amount Số tiền cần định dạng
- * @param currency Đơn vị tiền tệ (mặc định: VND)
- * @param locale Ngôn ngữ định dạng (mặc định: vi-VN)
- * @returns Chuỗi tiền tệ đã định dạng
+ * @returns Chuỗi tiền tệ VND
  */
-function formatCurrency(
-    amount: number,
-    currency: string = "VND",
-    locale: string = "vi-VN"
-  ): string {
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency,
-      minimumFractionDigits: 0, // Không hiển thị số thập phân (tùy chỉnh nếu cần)
-    }).format(amount);
+export default function formatCurrency(amount: number | string): string {
+  // Chuyển về số nếu đầu vào là chuỗi
+  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  
+  // Kiểm tra giá trị hợp lệ
+  if (isNaN(numericAmount)) {
+    return '0 VNĐ';
   }
-export default formatCurrency;
+  
+  // Định dạng số với dấu phân cách hàng nghìn
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(numericAmount);
+}

@@ -111,7 +111,7 @@ export default function ListDormitory() {
   
   if (data?.data?.data) {
     dormitories = data.data.data;
-    totalPages = data.data.pagination.totalPages;
+    totalPages = data.data.meta.totalPages;
   }
 
   return (

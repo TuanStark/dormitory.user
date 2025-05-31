@@ -3,15 +3,23 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 
-// Define custom user interface
-interface CustomUser {
-  id: string;
-  email: string;
-  name: string;
-  accessToken?: string;
-  refreshToken?: string;
-  accessTokenExpires?: number;
+// Hàm để lấy thời gian hết hạn từ JWT token
+function getJwtExpiration(token: string): number {
+  try {
+    // JWT token có cấu trúc: header.payload.signature
+    const payload = token.split('.')[1];
+    // Giải mã base64
+    const decodedPayload = Buffer.from(payload, 'base64').toString();
+    // Parse JSON
+    const { exp } = JSON.parse(decodedPayload);
+    return exp;
+  } catch (error) {
+    console.error('Error decoding JWT token:', error);
+    // Trả về thời gian mặc định (1 giờ từ hiện tại)
+    return Math.floor(Date.now() / 1000) + 3600;
+  }
 }
+
 
 // Extend NextAuth types
 declare module "next-auth" {
@@ -51,52 +59,117 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
-        console.log("Authorize: Starting credentials authorization", { email: credentials?.email });
-        if (!credentials?.email || !credentials?.password) {
-          console.error("Authorize: Missing email or password");
-          return null;
-        }
-
+      authorize: async (credentials) => {
         try {
-          console.log("Authorize: Sending request to", `${process.env.NEXT_PUBLIC_NESTJS_API_URL}/auth/login`);
-          const response = await fetch(`${process.env.NEXT_PUBLIC_NESTJS_API_URL}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+          const response = await fetch('http://localhost:8000/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
             body: JSON.stringify({
-              email: credentials.email,
-              password: credentials.password,
+              email: credentials?.email,
+              password: credentials?.password,
             }),
           });
 
-          const data = await response.json();
-          console.log("Authorize: Response from NestJS API", {
-            status: response.status,
-            ok: response.ok,
-            data,
-          });
+          console.log('Authorize: Response status', response.status);
+          
+          const responseData = await response.json();
+          console.log('Authorize: Response from API', responseData);
 
-          if (!response.ok || !data.accessToken) {
-            console.error("Authorize: Authentication failed", { status: response.status, data });
-            return null;
+          if (!response.ok) {
+            console.log('Authorize: Authentication failed', responseData);
+            throw new Error(responseData?.message || 'Đăng nhập thất bại');
           }
 
-          // Giả sử backend trả về expiresIn (thời gian hết hạn tính bằng giây)
-          const expiresIn = data.expiresIn || 3600; // Mặc định 1 giờ
-          const accessTokenExpires = Date.now() + expiresIn * 1000;
+          const tokens = responseData?.data || {};
+          
+          if (!tokens.accessToken) {
+            console.log('Authorize: No access token in response');
+            throw new Error('Không tìm thấy token đăng nhập');
+          }
 
-          const user: CustomUser = {
-            id: data.id.toString(),
-            email: data.email,
-            name: data.name || data.email,
-            accessToken: data.accessToken,
-            refreshToken: data.refreshToken,
-            accessTokenExpires,
-          };
-          console.log("Authorize: User authenticated", { user });
-          return user;
+          const accessToken = tokens.accessToken;
+          const refreshToken = tokens.refreshToken;
+          const accessTokenExpires = getJwtExpiration(accessToken);
+
+          // Lấy thông tin người dùng từ API
+          // console.log('Authorize: Fetching user info with token', accessToken.substring(0, 20) + '...');
+          
+          try {
+            const userInfoResponse = await fetch(`http://localhost:8000/users/me`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+              },
+            });
+            
+            console.log('Authorize: User info response status', userInfoResponse.status);
+            
+            let userId = String(Date.now());
+            let userName = '';
+            let userEmail = credentials?.email || '';
+            let userImage = '';
+            
+            if (userInfoResponse.ok) {
+              const userInfo = await userInfoResponse.json();
+              console.log('Authorize: User info from API', userInfo);
+              
+              // Trích xuất dữ liệu từ cấu trúc phản hồi
+              const userData = userInfo?.data || {};
+              console.log(userData);
+              
+              // Kiểm tra lỗi từ API
+              if (userData.name === 'PrismaClientValidationError' || userInfo.statusCode >= 400) {
+                console.error('Authorize: API returned error', userInfo);
+                // Sử dụng thông tin cơ bản từ credentials
+                userName = credentials?.email?.split('@')[0] || 'Người dùng';
+                userEmail = credentials?.email || '';
+              } else {
+                userId = userData.id?.toString() || userId;
+                userName = userData.fullName || userData.name || userName;
+                userEmail = userData.email || userEmail;
+                userImage = userData.avatar || '';
+              }
+              
+              console.log('Authorize: Extracted user data', { userId, userName, userEmail });
+            } else {
+              console.log('Authorize: Failed to fetch user info, using default values');
+              userName = credentials?.email?.split('@')[0] || 'Người dùng';
+            }
+
+            console.log('Authorize: Authentication successful', { 
+              userId,
+              userName,
+              userEmail,
+              accessTokenExpires: new Date(accessTokenExpires * 1000).toISOString() 
+            });
+
+            return {
+              id: userId,
+              name: userName,
+              email: userEmail,
+              image: userImage,
+              accessToken,
+              refreshToken,
+              accessTokenExpires,
+            };
+          } catch (error) {
+            console.error('Authorize: Error fetching user info', error);
+            
+            // Trả về thông tin cơ bản nếu không lấy được thông tin người dùng
+            return {
+              id: String(Date.now()),
+              email: credentials?.email || '',
+              accessToken,
+              refreshToken,
+              accessTokenExpires,
+            };
+          }
         } catch (error) {
-          return null;
+          console.error('Authorize: Error during authentication', error);
+          throw error;
         }
       },
     }),
@@ -117,125 +190,224 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
-      if (account?.provider === "google" || account?.provider === "facebook") {
+    async signIn({ account, profile, user, credentials }) {
+      if (credentials) {
+        return true;
+      }
+
+      if (account && profile) {
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_NESTJS_API_URL}/auth/${account.provider}`, {
+          console.log(`SignIn: ${account.provider} authentication`, {
+            provider: account.provider,
+            email: profile?.email,
+          });
+
+          const response = await fetch(`http://localhost:8000/auth/${account.provider}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              email: user.email,
-              name: user.name,
-              [account.provider === "google" ? "googleId" : "facebookId"]: account.providerAccountId,
+              accessToken: account.access_token,
+              email: profile?.email,
+              name: profile?.name,
             }),
           });
 
-          const authData = await response.json();
+          const responseData = await response.json();
 
-          if (!response.ok || !authData.data?.accessToken) {
+          if (!response.ok) {
             return false;
           }
 
-          let userData;
+          const tokens = responseData?.data || {};
 
-          try {
-            if (account.provider === "google") {
-              const response = await fetch(`${process.env.NEXT_PUBLIC_NESTJS_API_URL}/users/google/${user.email}`, {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": `Bearer ${authData.data.accessToken}`,
-                },
-              });
-              userData = response.ok ? await response.json() : null;
-            } else if (account.provider === "facebook") {
-              const response = await fetch(
-                `${process.env.NEXT_PUBLIC_NESTJS_API_URL}/users/facebook/${account.providerAccountId}`,
-                {
-                  method: "GET",
-                  headers: { 
-                    "Content-Type": "application/json", 
-                    "Authorization": `Bearer ${authData.data.accessToken}` 
-                  },
-                }
-              );
-              userData = response.ok ? await response.json() : null;
-            }
-            
-            // Thiết lập thông tin người dùng từ userData
-            if (userData.data && userData.data.id) {
-              user.id = userData.data.id.toString();
-              user.email = userData.data.email || user.email;
-              user.name = userData.data.fullName || user.name;
-            } else {
-              // Fallback nếu không có userData hoặc userData.id
-              user.id = account.providerAccountId;
-            }
-          } catch (error) {
-            user.id = account.providerAccountId;
+          if (!tokens.accessToken) {
+            console.error(`SignIn: No access token in ${account.provider} response`);
+            return false;
           }
 
-          // Thiết lập token
-          user.accessToken = authData.data.accessToken;
-          user.refreshToken = authData.data.refreshToken;
+          // Lấy thông tin người dùng từ API
+          console.log(`SignIn: Fetching user info with token`, tokens.accessToken.substring(0, 20) + '...');
           
-          // Thiết lập thời gian hết hạn token
-          const expiresIn = authData.data.expiresIn || 86400; // Mặc định 24 giờ
-          user.accessTokenExpires = Date.now() + expiresIn * 1000;
+          try {
+            const userInfoResponse = await fetch(`http://localhost:8000/users/me`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${tokens.accessToken}`,
+                'Content-Type': 'application/json',
+              },
+            });
+            
+            console.log(`SignIn: User info response status`, userInfoResponse.status);
 
-          return true;
+            let userId = account.providerAccountId;
+            let userName = profile?.name || 'Người dùng';
+            let userEmail = profile?.email || '';
+            let userImage = profile?.image || '';
+            
+            if (userInfoResponse.ok) {
+              const userInfo = await userInfoResponse.json();
+              console.log(`SignIn: User info from API`, userInfo);
+              
+              // Trích xuất dữ liệu từ cấu trúc phản hồi
+              const userData = userInfo?.data || {};
+              
+              // Kiểm tra lỗi từ API
+              if (userData.name === 'PrismaClientValidationError' || userInfo.statusCode >= 400) {
+                console.error('SignIn: API returned error', userInfo);
+                // Sử dụng thông tin từ profile
+                userId = account.providerAccountId;
+                userName = profile?.name || 'Người dùng';
+                userEmail = profile?.email || '';
+              } else {
+                userId = userData.id?.toString() || userId;
+                userName = userData.fullName || userData.name || userName;
+                userEmail = userData.email || userEmail;
+                userImage = userData.avatar || userImage;
+              }
+              
+              console.log(`SignIn: Extracted user data`, { userId, userName, userEmail });
+              
+              // Cập nhật thông tin user
+              user.id = userId;
+              user.name = userName;
+              user.email = userEmail;
+              user.image = userImage;
+            } else {
+              console.log(`SignIn: Failed to fetch user info, using profile values`);
+            }
+
+            const accessTokenExpires = getJwtExpiration(tokens.accessToken);
+
+            user.accessToken = tokens.accessToken;
+            user.refreshToken = tokens.refreshToken;
+            user.accessTokenExpires = accessTokenExpires;
+
+            console.log(`SignIn: ${account.provider} authentication successful`, {
+              userId,
+              userName,
+              userEmail,
+              accessTokenExpires: new Date(accessTokenExpires * 1000).toISOString(),
+            });
+
+            return true;
+          } catch (error) {
+            console.error(`SignIn: Error fetching user info`, error);
+            
+            // Vẫn cho phép đăng nhập nhưng với thông tin từ profile
+            user.accessToken = tokens.accessToken;
+            user.refreshToken = tokens.refreshToken;
+            user.accessTokenExpires = getJwtExpiration(tokens.accessToken);
+            
+            return true;
+          }
         } catch (error) {
+          console.error(`SignIn: Error during ${account.provider} authentication`, error);
           return false;
         }
       }
+
       return true;
     },
 
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.accessToken = user.accessToken;
-        token.refreshToken = user.refreshToken;
-        token.accessTokenExpires = user.accessTokenExpires;
-      }
-
-      // Kiểm tra nếu token sắp hết hạn (trước 5 phút = 300 giây)
-      const now = Date.now();
-      const bufferTime = 5 * 60 * 1000; // 5 phút
-      if (token.accessTokenExpires && now > token.accessTokenExpires - bufferTime) {
-        try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_NESTJS_API_URL}/auth/refresh`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refreshToken: token.refreshToken }),
-          });
-
-          const refreshData = await response.json();
-          if (!response.ok || !refreshData.data?.accessToken) {
-            return token; // Giữ token cũ nếu refresh thất bại
-          }
-
-          // Cập nhật token
-          token.accessToken = refreshData.data.accessToken;
-          token.refreshToken = refreshData.data.refreshToken || token.refreshToken;
-          token.accessTokenExpires = Date.now() + (refreshData.data.expiresIn || 3600) * 1000;
-        } catch (error) {
-          return token;
+    async jwt({ token, user, account }) {
+      if (user && account) {
+        console.log("JWT: Initial sign in", { 
+          provider: account.provider,
+          userId: user.id,
+          userName: user.name,
+          userEmail: user.email,
+        });
+        
+        // Đảm bảo token.id được set đúng từ user.id
+        if (!token.id && user.id) {
+          token.id = user.id;
         }
+        
+        return {
+          ...token,
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          accessTokenExpires: user.accessTokenExpires,
+        };
       }
 
-      return token;
+      if (token.accessTokenExpires && Date.now() < token.accessTokenExpires * 1000) {
+        console.log("JWT: Token still valid", {
+          expiry: new Date(token.accessTokenExpires * 1000).toISOString(),
+          now: new Date().toISOString(),
+        });
+        return token;
+      }
+
+      console.log("JWT: Token expired, refreshing");
+      try {
+        const response = await fetch("http://localhost:8000/auth/refresh", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            refreshToken: token.refreshToken as string,
+          }),
+        });
+
+        const responseData = await response.json();
+        console.log("JWT: Refresh token response", responseData);
+
+        if (!response.ok) {
+          console.error("JWT: Failed to refresh token", responseData);
+          return { ...token, error: "RefreshAccessTokenError" };
+        }
+
+        const tokens = responseData?.data || {};
+        
+        if (!tokens.accessToken) {
+          console.error("JWT: No access token in refresh response");
+          return { ...token, error: "RefreshAccessTokenError" };
+        }
+
+        const accessTokenExpires = getJwtExpiration(tokens.accessToken);
+
+        console.log("JWT: Token refreshed successfully", {
+          expiry: new Date(accessTokenExpires * 1000).toISOString(),
+        });
+
+        return {
+          ...token,
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken || token.refreshToken,
+          accessTokenExpires,
+        };
+      } catch (error) {
+        console.error("JWT: Error refreshing token", error);
+        return { ...token, error: "RefreshAccessTokenError" };
+      }
     },
 
     async session({ session, token }) {
       if (session.user) {
+        console.log("Session: Creating session for user", { 
+          id: token.id,
+          name: token.name,
+          email: token.email,
+        });
+        
         session.user = {
           ...session.user,
           id: token.id as string,
+          name: token.name as string || session.user.name,
+          email: token.email as string || session.user.email,
+          image: token.image as string || session.user.image || '/default-avatar.png',
           accessToken: token.accessToken as string,
           refreshToken: token.refreshToken as string,
           accessTokenExpires: token.accessTokenExpires as number || undefined,
         };
+        
+        console.log("Session: Session created successfully");
       }
       return session;
     },

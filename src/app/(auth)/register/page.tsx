@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -101,30 +101,78 @@ export default function RegisterPage() {
     setFormErrors(errors);
     return valid;
   };
-  
+
+  useEffect(() => {
+    // Nếu đăng ký thành công, chuyển hướng đến trang đăng nhập sau 3 giây
+    if (registrationSuccess) {
+      const timer = setTimeout(() => {
+        router.push('/login');
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [registrationSuccess, router]);
+      
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (validateForm()) {
       setIsLoading(true);
+      setFormErrors({
+        ...formErrors,
+        general: ''
+      });
       
       try {
-        // Simulate API call for registration - replace with actual API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Chuẩn bị dữ liệu đăng ký
+        const registerData = {
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password
+        };
         
-        // Registration success
-        setRegistrationSuccess(true);
-        
-        // Redirect to login page after a delay
-        setTimeout(() => {
-          router.push('/login');
-        }, 3000);
-      } catch (error) {
-        // Handle registration error
-        setFormErrors({
-          ...formErrors,
-          general: 'Đăng ký thất bại. Vui lòng thử lại sau.'
+        // Gọi API đăng ký
+        const response = await fetch('http://localhost:8000/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(registerData)
         });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          // Xử lý lỗi từ API
+          throw new Error(data.message || 'Đăng ký thất bại');
+        }
+        
+        // Đăng ký thành công
+        console.log('Đăng ký thành công:', data);
+        setRegistrationSuccess(true);
+      } catch (error: any) {
+        console.error('Lỗi đăng ký:', error);
+        
+        // Xử lý các loại lỗi phổ biến
+        if (error.message.includes('email')) {
+          setFormErrors({
+            ...formErrors,
+            email: 'Email này đã được sử dụng',
+            general: 'Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.'
+          });
+        } else if (error.message.includes('phone')) {
+          setFormErrors({
+            ...formErrors,
+            phone: 'Số điện thoại này đã được sử dụng',
+            general: 'Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.'
+          });
+        } else {
+          setFormErrors({
+            ...formErrors,
+            general: error.message || 'Đăng ký thất bại. Vui lòng thử lại sau.'
+          });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -206,7 +254,7 @@ export default function RegisterPage() {
                         required
                         value={formData.fullName}
                         onChange={handleChange}
-                        className={`appearance-none block w-full pl-10 pr-3 py-3 border ${formErrors.fullName ? 'border-red-300' : 'border-gray-300'} rounded-xl bg-white/50 backdrop-blur-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                        className={`appearance-none block w-full pl-10 pr-3 py-3 border ${formErrors.fullName ? 'border-red-300' : 'border-gray-300'} rounded-xl bg-white/50 backdrop-blur-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-black`}
                         placeholder="Họ và tên của bạn"
                       />
                     </div>
@@ -238,7 +286,9 @@ export default function RegisterPage() {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className={`appearance-none block w-full pl-10 pr-3 py-3 border ${formErrors.email ? 'border-red-300' : 'border-gray-300'} rounded-xl bg-white/50 backdrop-blur-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                        className={`appearance-none block w-full pl-10 pr-3 py-3 border ${formErrors.email ? 'border-red-300' : 'border-gray-300'} 
+                        rounded-xl bg-white/50 backdrop-blur-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 
+                        focus:border-transparent transition-all duration-200 text-black`}
                         placeholder="Email của bạn"
                       />
                     </div>
@@ -269,7 +319,9 @@ export default function RegisterPage() {
                         autoComplete="tel"
                         value={formData.phone}
                         onChange={handleChange}
-                        className={`appearance-none block w-full pl-10 pr-3 py-3 border ${formErrors.phone ? 'border-red-300' : 'border-gray-300'} rounded-xl bg-white/50 backdrop-blur-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                        className={`appearance-none block w-full pl-10 pr-3 py-3 border ${formErrors.phone ? 'border-red-300' : 'border-gray-300'} 
+                        rounded-xl bg-white/50 backdrop-blur-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 
+                        focus:border-transparent transition-all duration-200 text-black`}
                         placeholder="Số điện thoại của bạn"
                       />
                     </div>
@@ -301,7 +353,9 @@ export default function RegisterPage() {
                         required
                         value={formData.password}
                         onChange={handleChange}
-                        className={`appearance-none block w-full pl-10 pr-3 py-3 border ${formErrors.password ? 'border-red-300' : 'border-gray-300'} rounded-xl bg-white/50 backdrop-blur-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                        className={`appearance-none block w-full pl-10 pr-3 py-3 border ${formErrors.password ? 'border-red-300' : 'border-gray-300'} 
+                        rounded-xl bg-white/50 backdrop-blur-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 
+                        focus:border-transparent transition-all duration-200 text-black`}
                         placeholder="Tạo mật khẩu (ít nhất 8 ký tự)"
                       />
                     </div>
@@ -315,7 +369,39 @@ export default function RegisterPage() {
                     )}
                   </div>
                   
-                  
+                  <div>
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                      Xác nhận mật khẩu
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                      </div>
+                      <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type="password"
+                        autoComplete="new-password"
+                        required
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        className={`appearance-none block w-full pl-10 pr-3 py-3 border ${formErrors.confirmPassword ? 'border-red-300' : 'border-gray-300'} 
+                        rounded-xl bg-white/50 backdrop-blur-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 
+                        focus:border-transparent transition-all duration-200 text-black`}
+                        placeholder="Nhập lại mật khẩu"
+                      />
+                    </div>
+                    {formErrors.confirmPassword && (
+                      <div className="text-red-500 text-sm mt-1 flex items-center">
+                        <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        {formErrors.confirmPassword}
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="mt-4">
                     <div className="flex items-start">

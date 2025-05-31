@@ -18,6 +18,11 @@
     --foreground: #ededed;
   }
 }
+input:read-only {
+  background-color: #e5e7eb; /* Màu nền xám nhạt sẫm hơn */
+  color: #1f2937; /* Màu chữ xám đậm */
+  cursor: not-allowed; /* Con trỏ chỉ báo không thể chỉnh sửa */
+}
 
 body {
   background: var(--background);

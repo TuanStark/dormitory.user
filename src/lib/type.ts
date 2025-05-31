@@ -78,3 +78,36 @@ export interface FAQ {
     question: string;
     answer: string;
 }
+
+export interface Booking {
+    id: string;
+    roomId: string;
+    userId: string;
+    checkInDate: string;
+    checkOutDate: string;
+    stayDuration: number;
+    status: string;
+    createAt: string;
+    updateAt: string;
+}
+
+export interface User {
+    id: number;
+    fullName: string;
+    email: string;
+    password: string;
+    phoneNumber: string | null;
+    roleId: number;
+    gender: string | null;
+    citizenId: string | null;
+    universityId: string | null;
+    FacebookId: string | null;
+    GoogleId: string | null;
+    profileImage: string | null;
+    dateOfBirth: string | null;
+    address: string | null;
+    status: boolean;
+    isVerified: boolean;
+    createAt: string;
+    updateAt: string;
+}
