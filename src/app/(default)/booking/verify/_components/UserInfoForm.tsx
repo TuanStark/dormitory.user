@@ -302,7 +302,7 @@ export default function UserInfoForm({
                     value={userData.email}
                     onChange={handleChange}
                     className={`text-gray-700 w-full pl-10 pr-3 py-3.5 border rounded-xl bg-gray-50 focus:bg-white transition-all duration-200 ease-in-out ${formErrors.email ? 'border-red-300 focus:ring-red-200' : 'border-gray-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'}`}
-                    readOnly
+                    // readOnly
                   />
                 </div>
                 {formErrors.email && <p className="text-red-500 text-sm mt-1.5 flex items-center"><span className="mr-1">•</span>{formErrors.email}</p>}

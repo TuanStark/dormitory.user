@@ -23,7 +23,7 @@ export default function AboutPage() {
           <div className="md:flex">
             <div className="md:w-1/2 relative h-80 md:h-auto">
               <div className="w-full h-full bg-blue-100 flex items-center justify-center">
-                <span className="text-blue-500 font-medium">Hình ảnh giới thiệu</span>
+                <Image src="/home/KTX.jpg" alt="About" fill className="object-cover" />
               </div>
             </div>
             <div className="md:w-1/2 p-8 md:p-12">
@@ -130,7 +130,7 @@ export default function AboutPage() {
         </div>
         
         {/* Team */}
-        <div className="mt-16">
+        {/* <div className="mt-16">
           <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">Đội ngũ của chúng tôi</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -149,7 +149,7 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </main>
     </div>
   );

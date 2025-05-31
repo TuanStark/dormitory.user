@@ -120,21 +120,21 @@ export default function PaymentMethodForm({
           // Thêm file vào form data
           formData.append('file', blob, fileName);
           
-          // Tải lên server
-          const uploadResponse = await fetch('http://localhost:8000/uploads', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${accessToken}`
-            },
-            body: formData
-          });
+          //Tải lên server
+          // const uploadResponse = await fetch('http://localhost:8000/uploads', {
+          //   method: 'POST',
+          //   headers: {
+          //     'Authorization': `Bearer ${accessToken}`
+          //   },
+          //   body: formData
+          // });
           
-          if (!uploadResponse.ok) {
-            throw new Error(`Upload failed with status: ${uploadResponse.status}`);
-          }
+          // if (!uploadResponse.ok) {
+          //   throw new Error(`Upload failed with status: ${uploadResponse.status}`);
+          // }
           
-          const uploadResult = await uploadResponse.json();
-          imageUrl = uploadResult.url || `/uploads/${fileName}`;
+          // const uploadResult = await uploadResponse.json();
+          imageUrl = `/uploads/${fileName}`;
           
           console.log('Image uploaded successfully:', imageUrl);
         } catch (uploadError) {
@@ -195,7 +195,7 @@ export default function PaymentMethodForm({
         console.log('API error but continuing for development purposes');
         return {
           success: true,
-          imageUrl: imageUrl
+          // imageUrl: imageUrl
         };
       }
       
@@ -242,7 +242,7 @@ export default function PaymentMethodForm({
           
           // Thông báo thành công và chuyển hướng
           alert('Thanh toán chuyển khoản đã được ghi nhận. Chúng tôi sẽ xác nhận và thông báo cho bạn sớm nhất.');
-          onSuccess(paymentMethod, paymentResult.imageUrl);
+          onSuccess(paymentMethod);
         } else {
           // Xử lý khi thanh toán thất bại
           alert('Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại sau.');

@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { Dormitory } from '@/lib/type';
 import debounce from 'lodash/debounce';
 import formatCurrency from '@/lib/common/currentcy';
+import { useSearchParams } from 'next/navigation';
+
 // Hàm fetcher cho SWR
 const fetcher = (url: string) => fetch(url).then((res) => {
   if (!res.ok) {
@@ -15,6 +17,8 @@ const fetcher = (url: string) => fetch(url).then((res) => {
 });
 
 export default function ListDormitory() {
+  const searchParams = useSearchParams();
+  
   // State for filters
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
@@ -24,6 +28,37 @@ export default function ListDormitory() {
   const [amenitiesFilter, setAmenitiesFilter] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+
+  // Load filters from URL params when component mounts
+  useEffect(() => {
+    const address = searchParams.get('address');
+    const minPrice = searchParams.get('minPrice');
+    const capacity = searchParams.get('capacity');
+    
+    if (address) {
+      setAreaFilter(address);
+    }
+    
+    if (minPrice) {
+      // Chuyển minPrice sang định dạng range của filter
+      const priceValue = parseInt(minPrice);
+      if (priceValue <= 500000) {
+        setPriceFilter('0-500000');
+      } else if (priceValue <= 800000) {
+        setPriceFilter('500000-800000');
+      } else if (priceValue <= 1200000) {
+        setPriceFilter('800000-1200000');
+      } else if (priceValue <= 1500000) {
+        setPriceFilter('1200000-1500000');
+      } else {
+        setPriceFilter('1500000-999999999');
+      }
+    }
+    
+    if (capacity) {
+      setRoomTypeFilter(capacity);
+    }
+  }, [searchParams]);
 
   // Debounce search term
   const debouncedSearch = useCallback(

@@ -68,39 +68,39 @@ export default function BankTransferPage() {
               }
               
               // Lấy thông tin thanh toán
-              try {
-                const paymentResponse = await fetch(`http://localhost:8000/payment/booking/${bookingId}`, {
-                  method: 'GET',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                  }
-                });
+              // try {
+              //   const paymentResponse = await fetch(`http://localhost:8000/payment/booking/${bookingId}`, {
+              //     method: 'GET',
+              //     headers: {
+              //       'Content-Type': 'application/json',
+              //       'Authorization': `Bearer ${accessToken}`
+              //     }
+              //   });
                 
-                if (paymentResponse.ok) {
-                  try {
-                    const paymentResult = await paymentResponse.json();
+              //   if (paymentResponse.ok) {
+              //     try {
+              //       const paymentResult = await paymentResponse.json();
                     
-                    // Kết hợp thông tin đặt phòng và thanh toán
-                    setBookingData({
-                      ...bookingResult.data,
-                      payment: paymentResult.data
-                    });
+              //       // Kết hợp thông tin đặt phòng và thanh toán
+              //       setBookingData({
+              //         ...bookingResult.data,
+              //         payment: paymentResult.data
+              //       });
                     
-                    setLoading(false);
-                    return;
-                  } catch (jsonError) {
-                    console.error('Error parsing payment response:', jsonError);
-                    // Tiếp tục với dữ liệu đặt phòng nếu không parse được thanh toán
-                  }
-                }
-              } catch (paymentError) {
-                console.error('Error fetching payment data:', paymentError);
-                // Tiếp tục với dữ liệu đặt phòng nếu không lấy được thanh toán
-                setBookingData(bookingResult.data);
-                setLoading(false);
-                return;
-              }
+              //       setLoading(false);
+              //       return;
+              //     } catch (jsonError) {
+              //       console.error('Error parsing payment response:', jsonError);
+              //       // Tiếp tục với dữ liệu đặt phòng nếu không parse được thanh toán
+              //     }
+              //   }
+              // } catch (paymentError) {
+              //   console.error('Error fetching payment data:', paymentError);
+              //   // Tiếp tục với dữ liệu đặt phòng nếu không lấy được thanh toán
+              //   setBookingData(bookingResult.data);
+              //   setLoading(false);
+              //   return;
+              // }
               
               // Nếu không lấy được thông tin thanh toán
               setBookingData(bookingResult.data);
